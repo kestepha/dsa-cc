@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-abyss-900 text-parchment-100 font-lora;
+    min-height: 100vh;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-abyss-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gold-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gold-600;
+  }
+}
+
+@layer components {
+  .parchment-panel {
+    @apply bg-parchment-100/95 backdrop-blur-sm rounded-lg border-2 border-gold-500/50 p-6 shadow-gold;
+    background-image: 
+      radial-gradient(ellipse at 20% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+  }
+
+  .dark-panel {
+    @apply bg-abyss-800/90 backdrop-blur-sm rounded-lg border border-gold-500/30 p-6 shadow-gold;
+  }
+
+  .fantasy-btn {
+    @apply px-6 py-2.5 font-cinzel font-semibold text-sm tracking-wider
+      bg-gradient-to-r from-gold-700 via-gold-500 to-gold-700
+      text-abyss-900 rounded border border-gold-400
+      hover:from-gold-600 hover:via-gold-400 hover:to-gold-600
+      active:from-gold-800 active:via-gold-600 active:to-gold-800
+      transition-all duration-300 shadow-gold hover:shadow-gold-lg;
+  }
+
+  .fantasy-btn-outline {
+    @apply px-6 py-2.5 font-cinzel font-semibold text-sm tracking-wider
+      bg-transparent text-gold-500 rounded border border-gold-500/50
+      hover:bg-gold-500/10 hover:border-gold-400
+      active:bg-gold-500/20
+      transition-all duration-300;
+  }
+
+  .fantasy-btn-danger {
+    @apply px-6 py-2.5 font-cinzel font-semibold text-sm tracking-wider
+      bg-gradient-to-r from-blood-700 via-blood-500 to-blood-700
+      text-parchment-100 rounded border border-blood-500/50
+      hover:from-blood-600 hover:via-blood-500 hover:to-blood-600
+      transition-all duration-300;
+  }
+
+  .ornate-border {
+    @apply border-2 border-gold-500/40 rounded-lg;
+    box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.05), 0 0 10px rgba(212, 175, 55, 0.1);
+  }
+
+  .section-title {
+    @apply font-cinzel text-2xl font-bold text-gold-500 mb-4 tracking-wide;
+  }
+
+  .subsection-title {
+    @apply font-cinzel text-lg font-semibold text-gold-400 mb-3 tracking-wide;
+  }
+
+  .gold-divider {
+    @apply h-px bg-gradient-to-r from-transparent via-gold-500/60 to-transparent my-4;
+  }
+
+  .property-btn {
+    @apply w-8 h-8 flex items-center justify-center rounded-full
+      font-cinzel font-bold text-lg transition-all duration-200
+      border border-gold-500/50;
+  }
+
+  .property-btn-increase {
+    @apply property-btn bg-forest-600 text-parchment-100
+      hover:bg-forest-500 hover:border-gold-400 active:bg-forest-700;
+  }
+
+  .property-btn-decrease {
+    @apply property-btn bg-blood-600 text-parchment-100
+      hover:bg-blood-500 hover:border-gold-400 active:bg-blood-700;
+  }
+
+  .selection-card {
+    @apply bg-abyss-700/60 border border-gold-500/20 rounded-lg p-4
+      cursor-pointer transition-all duration-300
+      hover:bg-abyss-700/80 hover:border-gold-500/50 hover:shadow-gold;
+  }
+
+  .selection-card-active {
+    @apply bg-abyss-600/80 border-2 border-gold-400 rounded-lg p-4
+      cursor-pointer shadow-gold-lg transition-all duration-300;
+  }
+
+  .ap-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-cinzel font-semibold
+      bg-gold-500/20 text-gold-400 border border-gold-500/30;
+  }
+
+  .ap-badge-danger {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-cinzel font-semibold
+      bg-blood-500/20 text-red-400 border border-blood-500/30;
+  }
+
+  .ap-badge-success {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-cinzel font-semibold
+      bg-forest-500/20 text-green-400 border border-forest-500/30;
+  }
+}
