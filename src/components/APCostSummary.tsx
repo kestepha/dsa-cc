@@ -1,5 +1,5 @@
 import { useCharacterStore } from '../store/characterStore';
-import { getPropertyCost } from '../utils/apCalculator';
+import { BASE_PROPERTY_VALUE, START_PROPERTY_POINTS, getPropertyCost } from '../utils/apCalculator';
 import { PROPERTY_KEYS, PROPERTY_NAMES } from '../types/character';
 import { ERFAHRUNGSGRADE } from '../data/erfahrungsgrade';
 
@@ -76,6 +76,12 @@ export default function APCostSummary() {
 
         {/* Property costs detail */}
         <div className="font-cinzel text-sm text-gold-400 mb-1">Eigenschaftskosten</div>
+        <div className="flex justify-between items-center pl-2">
+          <span className="text-abyss-100">
+            Startwerte ({PROPERTY_KEYS.length} × {BASE_PROPERTY_VALUE} = {START_PROPERTY_POINTS} Punkte)
+          </span>
+          <span className="ap-badge">0 AP</span>
+        </div>
         {PROPERTY_KEYS.map(key => {
           const baseVal = speciesBase[key];
           const finalVal = character.properties[key];

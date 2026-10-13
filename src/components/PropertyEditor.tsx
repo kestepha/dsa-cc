@@ -1,6 +1,6 @@
 import { useCharacterStore } from '../store/characterStore';
 import { PROPERTY_KEYS, PROPERTY_NAMES } from '../types/character';
-import { canIncreaseProperty, canDecreaseProperty, getPropertyCost } from '../utils/apCalculator';
+import { START_PROPERTY_POINTS, canIncreaseProperty, canDecreaseProperty, getPropertyCost } from '../utils/apCalculator';
 import { ERFAHRUNGSGRADE } from '../data/erfahrungsgrade';
 
 export default function PropertyEditor() {
@@ -39,6 +39,7 @@ export default function PropertyEditor() {
         Eigenschaftssumme: <span className={`font-bold ${breakdown.propertySum > breakdown.maxPropertySum ? 'text-red-400' : 'text-gold-400'}`}>
           {breakdown.propertySum} / {breakdown.maxPropertySum}
         </span>
+        {' '}(davon {START_PROPERTY_POINTS} kostenlose Startpunkte)
         {eg && <> | Max. Wert: <span className="text-gold-400">{eg.maxProperty}</span></>}
       </p>
 

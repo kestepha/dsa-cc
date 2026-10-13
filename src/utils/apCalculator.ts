@@ -5,7 +5,8 @@ import { SPECIES } from '../data/species';
 import { CULTURES } from '../data/cultures';
 import { PROFESSIONS } from '../data/professions';
 
-const BASE_PROPERTY_VALUE = 8;
+export const BASE_PROPERTY_VALUE = 8;
+export const START_PROPERTY_POINTS = BASE_PROPERTY_VALUE * PROPERTY_KEYS.length; // 64, kostenlos
 
 /**
  * Cost to increase a single property from base (8) to a target value.
