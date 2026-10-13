@@ -46,10 +46,10 @@ describe('store', () => {
       erfahrungsgradId: 'unerfahren', // 900 AP
       cultureId: 'andergaster', // 25
       professionId: 'kriegerin', // 420
-      properties: { MU: 13, KL: 13, IN: 13, CH: 13, FF: 13, GE: 13, KO: 8, KK: 8 }, // 6 x 75
+      properties: { MU: 12, KL: 12, IN: 12, CH: 12, FF: 12, GE: 12, KO: 9, KK: 8 }, // 6 x 60 + 15
     };
-    expect(calculateAPBreakdown(c).remaining).toBe(5);
-    expect(canIncreaseProperty('KO', c)).toEqual({ allowed: false, reason: 'Nicht genügend AP' });
+    expect(calculateAPBreakdown(c).remaining).toBe(80);
+    expect(canIncreaseProperty('KK', { ...c, professionId: 'gildenmagier' })).toEqual({ allowed: false, reason: 'Nicht genügend AP' });
   });
 });
 

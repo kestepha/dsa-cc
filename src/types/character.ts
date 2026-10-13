@@ -26,6 +26,8 @@ export interface Erfahrungsgrad {
   maxSkill: number;
   maxCombatTechnique: number;
   maxPropertySum: number;
+  maxSpells: number;
+  maxForeignSpells: number;
   fatePoints: number;
 }
 
