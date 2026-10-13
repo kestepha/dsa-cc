@@ -1,0 +1,6 @@
+graphify-out/*
+node_modules/*
+*graph*
+cost.json
+manifest.json
+*GRAPH*
