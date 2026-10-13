@@ -1,4 +1,4 @@
-import type { CharacterProperties, PropertyKey, APCostBreakdown, PropertyMod } from '../types/character';
+import type { Character, CharacterProperties, PropertyKey, APCostBreakdown, PropertyMod } from '../types/character';
 import { PROPERTY_KEYS } from '../types/character';
 import { ERFAHRUNGSGRADE } from '../data/erfahrungsgrade';
 import { SPECIES } from '../data/species';
@@ -28,19 +28,20 @@ export function getPropertyCostFromBase(targetValue: number): number {
 }
 
 /**
- * Get the incremental cost to go from currentVal to nextVal (nextVal = currentVal + 1 or currentVal - 1)
+ * AP cost of a property value. Only bought points cost AP: species mods are free,
+ * so the price is taken for the value without the species modifier.
  */
-export function getPropertyIncrementCost(currentVal: number, nextVal: number): number {
-  return getPropertyCostFromBase(nextVal) - getPropertyCostFromBase(currentVal);
+export function getPropertyCost(value: number, speciesBaseValue: number): number {
+  return getPropertyCostFromBase(BASE_PROPERTY_VALUE + value - speciesBaseValue);
 }
 
 /**
- * Calculate the total AP cost for all properties from base 8.
+ * Calculate the total AP cost for all properties.
  */
-export function calculatePropertyAP(properties: CharacterProperties): number {
+export function calculatePropertyAP(properties: CharacterProperties, speciesBase: CharacterProperties): number {
   let total = 0;
   for (const key of PROPERTY_KEYS) {
-    total += getPropertyCostFromBase(properties[key]);
+    total += getPropertyCost(properties[key], speciesBase[key]);
   }
   return total;
 }
@@ -57,8 +58,14 @@ export function calculatePropertySum(properties: CharacterProperties): number {
 }
 
 /**
+ * Key under which the player's pick for a CHOICE mod is stored in speciesChoice.propertyChoices.
+ */
+export function getChoiceKey(speciesId: string, mod: PropertyMod): string {
+  return `${speciesId}_${mod.value > 0 ? 'pos' : 'neg'}_${[...(mod.choices ?? [])].sort().join('_')}`;
+}
+
+/**
  * Apply species property modifications to the base properties.
- * Returns the modified properties and tracks which choices need to be made.
  */
 export function applySpeciesMods(
   speciesId: string,
@@ -80,8 +87,7 @@ export function applySpeciesMods(
 
   for (const mod of species.propertyMods) {
     if (mod.property === 'CHOICE' && mod.choices) {
-      const choiceKey = `${speciesId}_${mod.value > 0 ? 'pos' : 'neg'}_${mod.choices.sort().join('_')}`;
-      const chosenProp = propertyChoices[choiceKey];
+      const chosenProp = propertyChoices[getChoiceKey(speciesId, mod)];
       if (chosenProp) {
         props[chosenProp] += mod.value;
       }
@@ -103,8 +109,7 @@ export function getSpeciesChoices(speciesId: string): { choiceKey: string; optio
   const choices: { choiceKey: string; options: PropertyKey[]; value: number }[] = [];
   for (const mod of species.propertyMods) {
     if (mod.property === 'CHOICE' && mod.choices) {
-      const choiceKey = `${speciesId}_${mod.value > 0 ? 'pos' : 'neg'}_${mod.choices.sort().join('_')}`;
-      choices.push({ choiceKey, options: mod.choices as PropertyKey[], value: mod.value });
+      choices.push({ choiceKey: getChoiceKey(speciesId, mod), options: mod.choices, value: mod.value });
     }
   }
   return choices;
@@ -113,25 +118,20 @@ export function getSpeciesChoices(speciesId: string): { choiceKey: string; optio
 /**
  * Calculate the full AP cost breakdown for a character.
  */
-export function calculateAPBreakdown(
-  erfahrungsgradId: string,
-  speciesId: string,
-  cultureId: string,
-  professionId: string,
-  properties: CharacterProperties,
-): APCostBreakdown {
-  const eg = ERFAHRUNGSGRADE.find(e => e.id === erfahrungsgradId);
+export function calculateAPBreakdown(character: Character): APCostBreakdown {
+  const { speciesId, propertyChoices } = character.speciesChoice;
+  const eg = ERFAHRUNGSGRADE.find(e => e.id === character.erfahrungsgradId);
   const species = SPECIES.find(s => s.id === speciesId);
-  const culture = CULTURES.find(c => c.id === cultureId);
-  const profession = PROFESSIONS.find(p => p.id === professionId);
+  const culture = CULTURES.find(c => c.id === character.cultureId);
+  const profession = PROFESSIONS.find(p => p.id === character.professionId);
 
   const speciesAP = species?.apCost ?? 0;
-  const propertyAP = calculatePropertyAP(properties);
+  const propertyAP = calculatePropertyAP(character.properties, applySpeciesMods(speciesId, propertyChoices));
   const cultureAP = culture?.apCost ?? 0;
   const professionAP = profession?.apCost ?? 0;
   const total = speciesAP + propertyAP + cultureAP + professionAP;
   const maxAP = eg?.ap ?? 1100;
-  const propertySum = calculatePropertySum(properties);
+  const propertySum = calculatePropertySum(character.properties);
   const maxPropertySum = eg?.maxPropertySum ?? 100;
 
   return {
@@ -152,13 +152,12 @@ export function calculateAPBreakdown(
  */
 export function canIncreaseProperty(
   prop: PropertyKey,
-  properties: CharacterProperties,
-  erfahrungsgradId: string,
+  character: Character,
 ): { allowed: boolean; reason?: string } {
-  const eg = ERFAHRUNGSGRADE.find(e => e.id === erfahrungsgradId);
+  const eg = ERFAHRUNGSGRADE.find(e => e.id === character.erfahrungsgradId);
   if (!eg) return { allowed: false, reason: 'Ungültiger Erfahrungsgrad' };
 
-  const currentValue = properties[prop];
+  const currentValue = character.properties[prop];
   const maxProp = eg.maxProperty;
 
   // Check max value (species mods can push above this, but player can't increase beyond it)
@@ -167,9 +166,14 @@ export function canIncreaseProperty(
   }
 
   // Check property sum
-  const currentSum = calculatePropertySum(properties);
+  const currentSum = calculatePropertySum(character.properties);
   if (currentSum >= eg.maxPropertySum) {
     return { allowed: false, reason: `Eigenschaftssumme von ${eg.maxPropertySum} erreicht` };
+  }
+
+  const after = calculateAPBreakdown({ ...character, properties: { ...character.properties, [prop]: currentValue + 1 } });
+  if (after.remaining < 0) {
+    return { allowed: false, reason: 'Nicht genügend AP' };
   }
 
   return { allowed: true };
@@ -185,16 +189,31 @@ export function canDecreaseProperty(
   propertyChoices: Record<string, PropertyKey>,
 ): { allowed: boolean; reason?: string } {
   const speciesBase = applySpeciesMods(speciesId, propertyChoices);
-  const currentValue = properties[prop];
-  const baseValue = speciesBase[prop];
-
-  if (currentValue <= baseValue) {
+  if (properties[prop] <= speciesBase[prop]) {
     return { allowed: false, reason: 'Bereits auf Spezies-Basiswert' };
   }
 
-  if (currentValue <= 1) {
-    return { allowed: false, reason: 'Wert kann nicht unter 1 sinken' };
-  }
-
   return { allowed: true };
+}
+
+/**
+ * Check an imported file before it replaces the character. Each property must be at least
+ * its species base and at most the EG maximum (plus a positive species mod, which may exceed it).
+ */
+export function isValidCharacter(data: unknown): data is Character {
+  if (typeof data !== 'object' || data === null) return false;
+  const c = data as Character;
+  const eg = ERFAHRUNGSGRADE.find(e => e.id === c.erfahrungsgradId);
+  const choice = c.speciesChoice;
+  if (!eg || typeof c.name !== 'string' || typeof c.cultureId !== 'string' || typeof c.professionId !== 'string') return false;
+  if (typeof choice !== 'object' || choice === null || typeof choice.propertyChoices !== 'object' || choice.propertyChoices === null) return false;
+  if (choice.speciesId !== '' && !SPECIES.some(s => s.id === choice.speciesId)) return false;
+  if (!Object.values(choice.propertyChoices).every(p => (PROPERTY_KEYS as readonly unknown[]).includes(p))) return false;
+  if (typeof c.properties !== 'object' || c.properties === null) return false;
+
+  const base = applySpeciesMods(choice.speciesId, choice.propertyChoices);
+  return PROPERTY_KEYS.every(k => {
+    const v = c.properties[k];
+    return Number.isInteger(v) && v >= base[k] && v <= eg.maxProperty + Math.max(0, base[k] - BASE_PROPERTY_VALUE);
+  });
 }

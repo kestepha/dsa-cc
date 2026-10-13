@@ -1,5 +1,5 @@
 import { useCharacterStore } from '../store/characterStore';
-import { getPropertyCostFromBase } from '../utils/apCalculator';
+import { getPropertyCost } from '../utils/apCalculator';
 import { PROPERTY_KEYS, PROPERTY_NAMES } from '../types/character';
 import { ERFAHRUNGSGRADE } from '../data/erfahrungsgrade';
 
@@ -79,7 +79,7 @@ export default function APCostSummary() {
         {PROPERTY_KEYS.map(key => {
           const baseVal = speciesBase[key];
           const finalVal = character.properties[key];
-          const cost = getPropertyCostFromBase(finalVal);
+          const cost = getPropertyCost(finalVal, baseVal);
           const diff = finalVal - baseVal;
           return (
             <div key={key} className="flex justify-between items-center pl-2">

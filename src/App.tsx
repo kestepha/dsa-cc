@@ -6,7 +6,7 @@ import CultureSelector from './components/CultureSelector';
 import ProfessionSelector from './components/ProfessionSelector';
 import PropertyEditor from './components/PropertyEditor';
 import APCostSummary from './components/APCostSummary';
-import type { Character } from './types/character';
+import { isValidCharacter } from './utils/apCalculator';
 
 const STEPS = [
   { title: 'Erfahrungsgrad', icon: '⚔' },
@@ -50,9 +50,8 @@ function App() {
     const reader = new FileReader();
     reader.onload = (evt) => {
       try {
-        const data = JSON.parse(evt.target?.result as string) as Character;
-        // Basic validation
-        if (!data.erfahrungsgradId || !data.properties || !data.speciesChoice) {
+        const data: unknown = JSON.parse(evt.target?.result as string);
+        if (!isValidCharacter(data)) {
           throw new Error('Ungültiges Character-Format');
         }
         loadCharacter(data);

@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import type { Character, CharacterProperties, PropertyKey, SpeciesChoice } from '../types/character';
 import { PROPERTY_KEYS } from '../types/character';
-import { DEFAULT_ERFAHRUNGSGRAD } from '../data/erfahrungsgrade';
+import { DEFAULT_ERFAHRUNGSGRAD, ERFAHRUNGSGRADE } from '../data/erfahrungsgrade';
 import { SPECIES } from '../data/species';
-import { applySpeciesMods, calculateAPBreakdown, canIncreaseProperty, canDecreaseProperty, getPropertyIncrementCost } from '../utils/apCalculator';
+import { applySpeciesMods, calculateAPBreakdown, calculatePropertySum, canIncreaseProperty, canDecreaseProperty, getChoiceKey } from '../utils/apCalculator';
 
 const DEFAULT_PROPERTIES: CharacterProperties = {
   MU: 8, KL: 8, IN: 8, CH: 8, FF: 8, GE: 8, KO: 8, KK: 8,
@@ -45,17 +45,18 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   setName: (name) => set(s => ({ character: { ...s.character, name } })),
 
   setErfahrungsgrad: (id) => set(s => {
-    const newProps = { ...DEFAULT_PROPERTIES };
-    if (s.character.speciesChoice.speciesId) {
-      const adjusted = applySpeciesMods(s.character.speciesChoice.speciesId, s.character.speciesChoice.propertyChoices);
-      for (const key of PROPERTY_KEYS) {
-        newProps[key] = adjusted[key];
-      }
-    }
-    return { character: { ...s.character, erfahrungsgradId: id, properties: newProps } };
+    if (id === s.character.erfahrungsgradId) return s;
+    // Keep bought points unless they break the new level's caps
+    const eg = ERFAHRUNGSGRADE.find(e => e.id === id);
+    const props = s.character.properties;
+    const fits = eg && PROPERTY_KEYS.every(k => props[k] <= eg.maxProperty) && calculatePropertySum(props) <= eg.maxPropertySum;
+    const { speciesId, propertyChoices } = s.character.speciesChoice;
+    const properties = fits ? props : applySpeciesMods(speciesId, propertyChoices);
+    return { character: { ...s.character, erfahrungsgradId: id, properties } };
   }),
 
   setSpecies: (speciesId) => set(s => {
+    if (speciesId === s.character.speciesChoice.speciesId) return s;
     const species = SPECIES.find(sp => sp.id === speciesId);
     const newPropertyChoices: Record<string, PropertyKey> = {};
 
@@ -63,8 +64,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     if (species) {
       for (const mod of species.propertyMods) {
         if (mod.property === 'CHOICE' && mod.choices && mod.choices.length > 0) {
-          const choiceKey = `${speciesId}_${mod.value > 0 ? 'pos' : 'neg'}_${[...mod.choices].sort().join('_')}`;
-          newPropertyChoices[choiceKey] = mod.choices[0] as PropertyKey;
+          newPropertyChoices[getChoiceKey(speciesId, mod)] = mod.choices[0];
         }
       }
     }
@@ -84,31 +84,28 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   }),
 
   setSpeciesChoice: (choiceKey, property) => set(s => {
-    const newPropertyChoices = { ...s.character.speciesChoice.propertyChoices, [choiceKey]: property };
-    const newSpeciesChoice = { ...s.character.speciesChoice, propertyChoices: newPropertyChoices };
-    const newProps = applySpeciesMods(s.character.speciesChoice.speciesId, newPropertyChoices);
-    return { character: { ...s.character, speciesChoice: newSpeciesChoice, properties: newProps } };
+    const { speciesId, propertyChoices } = s.character.speciesChoice;
+    if (propertyChoices[choiceKey] === property) return s;
+    const newPropertyChoices = { ...propertyChoices, [choiceKey]: property };
+    const oldBase = applySpeciesMods(speciesId, propertyChoices);
+    const newProps = applySpeciesMods(speciesId, newPropertyChoices);
+    // Move the species mod, keep the bought points
+    for (const key of PROPERTY_KEYS) {
+      newProps[key] += s.character.properties[key] - oldBase[key];
+    }
+    return { character: { ...s.character, speciesChoice: { speciesId, propertyChoices: newPropertyChoices }, properties: newProps } };
   }),
 
-  setCultura: (cultureId) => set(s => ({ character: { ...s.character, cultureId } })),
+  // Changing culture can drop the profession's cultureConstraint, so the profession is reset
+  setCultura: (cultureId) => set(s => (
+    cultureId === s.character.cultureId ? s : { character: { ...s.character, cultureId, professionId: '' } }
+  )),
 
   setProfession: (professionId) => set(s => ({ character: { ...s.character, professionId } })),
 
   increaseProperty: (prop) => set(s => {
-    const check = canIncreaseProperty(prop, s.character.properties, s.character.erfahrungsgradId);
-    if (!check.allowed) return s;
-
+    if (!canIncreaseProperty(prop, s.character).allowed) return s;
     const newProps = { ...s.character.properties, [prop]: s.character.properties[prop] + 1 };
-    const breakdown = calculateAPBreakdown(
-      s.character.erfahrungsgradId,
-      s.character.speciesChoice.speciesId,
-      s.character.cultureId,
-      s.character.professionId,
-      newProps,
-    );
-
-    if (breakdown.remaining < 0) return s;
-
     return { character: { ...s.character, properties: newProps } };
   }),
 
@@ -126,16 +123,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
 
   loadCharacter: (character) => set({ character, currentStep: 0 }),
 
-  getAPBreakdown: () => {
-    const { character } = get();
-    return calculateAPBreakdown(
-      character.erfahrungsgradId,
-      character.speciesChoice.speciesId,
-      character.cultureId,
-      character.professionId,
-      character.properties,
-    );
-  },
+  getAPBreakdown: () => calculateAPBreakdown(get().character),
 
   getSpeciesBaseProperties: () => {
     const { character } = get();

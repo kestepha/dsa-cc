@@ -15,8 +15,6 @@ export const SPECIES: Species[] = [
     usualCultures: ['andergaster', 'bornlaender', 'horasier', 'maraskaner', 'mittelreicher', 'nordaventurier', 'nostrier', 'suedaventurier', 'svellttaler', 'zyklopaeer'],
     automaticAdvantages: [],
     automaticDisadvantages: [],
-    apFromAdvantages: 0,
-    apFromDisadvantages: 0,
     description: 'Die verbreitetste Spezies Aventuriens. Vielfältig in Kulturen und Talenten.',
   },
   {
@@ -33,8 +31,6 @@ export const SPECIES: Species[] = [
     usualCultures: ['andergaster', 'auelfen', 'bornlaender', 'firnelfen', 'horasier', 'mittelreicher', 'nivesen', 'nordaventurier', 'nostrier', 'svellttaler', 'thorwaler', 'waldelfen'],
     automaticAdvantages: [],
     automaticDisadvantages: [],
-    apFromAdvantages: 0,
-    apFromDisadvantages: 0,
     description: 'Kinder zweier Welten, vereinen sie elische Anmut mit menschliche Vielseitigkeit.',
   },
   {
@@ -52,8 +48,6 @@ export const SPECIES: Species[] = [
     usualCultures: ['orkland', 'raeuberbande', 'svellttaler', 'thorwaler'],
     automaticAdvantages: ['Zäher Hund (20 AP)'],
     automaticDisadvantages: [],
-    apFromAdvantages: 20,
-    apFromDisadvantages: 0,
     description: 'Zähe und widerstandsfähige Mischlinge mit orkischer Stärke.',
   },
   {
@@ -71,8 +65,6 @@ export const SPECIES: Species[] = [
     usualCultures: ['holberk', 'nordaventurier', 'svellttaler'],
     automaticAdvantages: ['Zäher Hund (20 AP)'],
     automaticDisadvantages: [],
-    apFromAdvantages: 20,
-    apFromDisadvantages: 0,
     description: 'Nachfahren von Orks und Menschen, robuster als ihre Vorfahren.',
   },
   {
@@ -91,8 +83,6 @@ export const SPECIES: Species[] = [
     usualCultures: ['bornlaender_goblin', 'nordaventurier_goblin', 'raeuberbande', 'stammesgoblins'],
     automaticAdvantages: ['Dunkelsicht I (10 AP)', 'Herausragender Sinn (Gehör) (12 AP)', 'Herausragender Sinn (Geruch & Geschmack) (6 AP)', 'Krankheitsresistenz I (10 AP)'],
     automaticDisadvantages: [],
-    apFromAdvantages: 38,
-    apFromDisadvantages: 0,
     description: 'Kleine, flinke Wesen mit scharfen Sinnen und großer Anpassungsfähigkeit.',
   },
   {
@@ -111,8 +101,6 @@ export const SPECIES: Species[] = [
     usualCultures: ['auelfen', 'firnelfen', 'waldelfen'],
     automaticAdvantages: ['Zauberer', 'Zweistimmiger Gesang'],
     automaticDisadvantages: [],
-    apFromAdvantages: 30,
-    apFromDisadvantages: 0,
     description: 'Uralte, magiebegabte Wesen, eins mit der Natur. Besitzen 20 AsP durch Zauberer-Vorteil.',
   },
   {
@@ -131,8 +119,6 @@ export const SPECIES: Species[] = [
     usualCultures: ['orkland', 'raeuberbande', 'svellttaler', 'thorwaler'],
     automaticAdvantages: [],
     automaticDisadvantages: [],
-    apFromAdvantages: 0,
-    apFromDisadvantages: 0,
     description: 'Starke, zähe Kämpfer mit ausgeprägtem Überlebenswillen.',
   },
   {
@@ -151,8 +137,6 @@ export const SPECIES: Species[] = [
     usualCultures: ['nai_ashyrr'],
     automaticAdvantages: ['Zauberer', 'Zweistimmiger Gesang'],
     automaticDisadvantages: [],
-    apFromAdvantages: 30,
-    apFromDisadvantages: 0,
     description: 'Mysteriöse nächtliche Wesen mit angeborener magie. Besitzen 20 AsP durch Zauberer-Vorteil.',
   },
   {
@@ -171,8 +155,6 @@ export const SPECIES: Species[] = [
     usualCultures: ['achaz_rha', 'ctki_ssrr', 'stammesachaz'],
     automaticAdvantages: ['Dunkelsicht I (10 AP)', 'Zusätzliche Gliedmaße (Schwanz) (5 AP)'],
     automaticDisadvantages: ['Kältestarre (-15 AP)'],
-    apFromAdvantages: 15,
-    apFromDisadvantages: -15,
     description: 'Echsenwesen aus den Dschungeln und Sümpfen Aventuriens mit natürlichem Panzer und Dunkelsicht.',
   },
   {
@@ -191,8 +173,6 @@ export const SPECIES: Species[] = [
     usualCultures: ['ambosszwerge', 'brillantzwerge', 'erzzwerge', 'huegelzwerge'],
     automaticAdvantages: [],
     automaticDisadvantages: [],
-    apFromAdvantages: 0,
-    apFromDisadvantages: 0,
     description: 'Robuste, zähe Bergbewohner, meisterhafte Schmiede und Krieger.',
   },
 ];

@@ -32,7 +32,6 @@ export default function CultureSelector() {
       </h3>
       <p className="text-abyss-200 text-sm mb-4">
         Die Kultur bestimmt die gesellschaftliche Herkunft des Helden. Übliche Kulturen für <span className="text-gold-400">{species?.name}</span> werden angezeigt.
-        Jede Kultur kostet <span className="text-gold-400">25 AP</span>.
       </p>
 
       {availableCultures.length === 0 ? (

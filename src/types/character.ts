@@ -41,8 +41,6 @@ export interface Species {
   usualCultures: string[];
   automaticAdvantages: string[];
   automaticDisadvantages: string[];
-  apFromAdvantages: number;
-  apFromDisadvantages: number;
   description: string;
 }
 

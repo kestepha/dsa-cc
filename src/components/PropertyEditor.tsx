@@ -1,6 +1,6 @@
 import { useCharacterStore } from '../store/characterStore';
-import { PROPERTY_KEYS, PROPERTY_NAMES, type PropertyKey } from '../types/character';
-import { canIncreaseProperty, canDecreaseProperty, getPropertyCostFromBase, getPropertyIncrementCost } from '../utils/apCalculator';
+import { PROPERTY_KEYS, PROPERTY_NAMES } from '../types/character';
+import { canIncreaseProperty, canDecreaseProperty, getPropertyCost } from '../utils/apCalculator';
 import { ERFAHRUNGSGRADE } from '../data/erfahrungsgrade';
 
 export default function PropertyEditor() {
@@ -31,8 +31,8 @@ export default function PropertyEditor() {
         <span className="text-gold-400">📊</span> Schritt 5: Eigenschaften verteilen
       </h3>
       <p className="text-abyss-200 text-sm mb-2">
-        Verteile Eigenschaftspunkte auf die acht Eigenschaften. Der Basiswert ist 8, modifiziert durch die Spezies.
-        Jeder Punkt bis 14 kostet <span className="text-gold-400">15 AP</span>, darüber steigt der Preis
+        Verteile Eigenschaftspunkte auf die acht Eigenschaften. Der Basiswert ist 8, modifiziert durch die Spezies;
+        die Spezies-Modifikation kostet keine AP. Jeder gekaufte Punkt bis 14 kostet <span className="text-gold-400">15 AP</span>, darüber steigt der Preis
         (15→<span className="text-gold-400">30 AP</span>, 16→<span className="text-gold-400">45 AP</span>, etc.).
       </p>
       <p className="text-abyss-200 text-sm mb-4">
@@ -47,13 +47,12 @@ export default function PropertyEditor() {
           const value = character.properties[key];
           const baseValue = speciesBase[key];
           const diff = value - baseValue;
-          const increaseCheck = canIncreaseProperty(key, character.properties, character.erfahrungsgradId);
+          const increaseCheck = canIncreaseProperty(key, character);
           const decreaseCheck = canDecreaseProperty(key, character.properties, character.speciesChoice.speciesId, character.speciesChoice.propertyChoices);
-          const nextCostUp = getPropertyIncrementCost(value, value + 1);
-          const nextCostDown = getPropertyIncrementCost(value, value - 1);
-          const totalCost = getPropertyCostFromBase(value);
+          const totalCost = getPropertyCost(value, baseValue);
+          const nextCostUp = getPropertyCost(value + 1, baseValue) - totalCost;
+          const nextCostDown = getPropertyCost(value - 1, baseValue) - totalCost;
           const isAtMax = eg ? value >= eg.maxProperty : false;
-          const isAtBase = value <= baseValue;
 
           return (
             <div key={key} className="flex items-center gap-3 p-3 rounded-lg bg-abyss-800/50 border border-gold-500/10 hover:border-gold-500/30 transition-all">
@@ -127,12 +126,6 @@ export default function PropertyEditor() {
         </div>
       )}
 
-      {/* Cost explanation */}
-      <div className="mt-4 p-3 rounded-lg bg-abyss-700/30 border border-gold-500/10 text-xs text-abyss-200">
-        <span className="font-cinzel text-gold-400">Kostenberechnung:</span> Bis Wert 14 kostet jeder Punkt 15 AP.
-        Ab 15 steigt der Preis: Wert 15 = 30 AP, Wert 16 = 45 AP, Wert 17 = 60 AP, usw.
-        (Der Preis für Wert N &gt; 14 beträgt (N−13)×15 AP pro Punkt.)
-      </div>
     </div>
   );
 }

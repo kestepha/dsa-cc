@@ -1,6 +1,6 @@
 import { useCharacterStore } from '../store/characterStore';
 import { SPECIES } from '../data/species';
-import { getSpeciesChoices, getPropertyCostFromBase } from '../utils/apCalculator';
+import { getSpeciesChoices } from '../utils/apCalculator';
 import { PROPERTY_NAMES, type PropertyKey } from '../types/character';
 
 export default function SpeciesSelector() {

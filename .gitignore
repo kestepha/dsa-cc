@@ -1,6 +1,9 @@
-graphify-out/*
-node_modules/*
-*graph*
+node_modules/
+dist/
+*.tsbuildinfo
+graphify-out/
+graph.json
+graph.html
+GRAPH_REPORT.md
 cost.json
 manifest.json
-*GRAPH*
